@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Game Console</title>
+		<script type="text/javascript">
+			var wr,WS_URL="",RENDERING=false,STATES=["Waiting for players","Delayed start / Waiting for players","Start","Countdown","Running","Ended","Reseting"];
+			window.onload=function(){
+				wr=document.querySelectorAll(".wr")[0];
+				fetch("C_WS_URL").then((r)=>r.text()).then(function(url){
+					WS_URL=url;
+					_socket_init();
+				});
+			}
+
+
+
+			function _socket_init(){
+				window.SOCKET=null;
+				function join(){
+					var old_r;
+					SOCKET=new WebSocket(WS_URL);
+					SOCKET.onopen=function(){
+						wr.innerHTML="";
+						RENDERING=false;
+					}
+					SOCKET.onclose=function(){
+						join();
+						wr.innerHTML="";
+						RENDERING=false;
+					}
+					SOCKET.onmessage=function(e){
+						try{
+							if (e.data=="null"){
+								return;
+							}
+							e={type:e.data.substring(0,2),data:e.data.substring(2)};
+							_={
+								dt:function(dt){
+									if (RENDERING==true){
+										return;
+									}
+									RENDERING=true;
+									render(dt);
+									RENDERING=false;
+								}
+							}[e.type](e.data);
+						}
+						catch (e){
+							console.error(e);
+							RENDERING=false;
+						}
+					}
+					SOCKET.onerror=function(e){
+						e.stopImmediatePropagation();
+						e.stopPropagation();
+						e.preventDefault();
+						console.clear();
+					}
+				}
+				join();
+			}
+
+
+
+			function render(dt){
+				if (dt==""){
+					return;
+				}
+				var seq="";
+				for (var gdt of dt.split(";")){
+					gdt=gdt.split(",");
+					var ps="";
+					if (gdt[2]!=""){
+						for (var p of gdt[2].split(".")){
+							p=p.split("-");
+							ps+=`<div class=\"p\" style=\"color:#${p[0]}\">${p[1]}</div>`;
+						}
+					}
+					var ss="";
+					for (var s of gdt[3].split(".")){
+						s=s.split("-");
+						ss+=`<div class=\"c\" style=\"color:#${s[0]}\">${s[1]}</div>`;
+					}
+					var sts="";
+					for (var s of gdt[4].split(".")){
+						if (s=="null"){
+							s="#9b9b9b-. . .";
+						}
+						s=s.split("-");
+						sts+=`<div class=\"s\" style=\"color:#${s[0]}\">${s[1]}</div>`;
+					}
+					seq+=`<div class=\"gm\"><div class=\"header\">Game #${gdt[0]}</div><div class=\"state\">State:&nbsp;&nbsp;&nbsp;&nbsp;<span class=\"s\">${STATES[gdt[1]]}</span></div><div class=\"pl\">Players:<div class=\"pwr\">${ps}</div></div><div class=\"cl\">Clients:<div class=\"cwr\">${ss}</div></div><div class=\"st\">Survive order:<div class=\"swr\">${sts}</div></div></div>`;
+				}
+				wr.innerHTML=seq;
+			}
+		</script>
+		<style type="text/css">
+			@import url("https://fonts.googleapis.com/css?family=Sniglet:400,800&display=swap");
+			html {
+				position: fixed;
+			}
+			body {
+				position: fixed;
+				width: 100%;
+				height: 100%;
+			}
+			body, body * {
+				margin: 0;
+				padding: 0;
+			}
+			.wr {
+				position: absolute;
+				top: 0;
+				left: 0;
+				width: 100%;
+				height: 100%;
+				display: flex;
+				flex-wrap: wrap;
+				background: #000000;
+				overflow-y: scroll;
+				align-content: flex-start;
+			}
+			.gm {
+				background: #2d2d2d;
+				margin: 10px;
+				padding: 10px;
+				border-radius: 20px;
+				border: 10px solid #aaaaaa;
+				height: 275px;
+				display: flex;
+				flex-direction: column;
+			}
+			.gm * {
+				font-family: Sniglet;
+				flex-shrink: 0;
+				user-select: none;
+			}
+			.gm .header {
+				position: relative;
+				height: 65px;
+				line-height: 50px;
+				font-weight: 800;
+				font-size: 40px;
+				color: #ffffff;
+				text-align: center;
+				order: 0;
+			}
+			.gm .header:after {
+				content: "";
+				position: absolute;
+				bottom: 0;
+				left: -10px;
+				right: -10px;
+				border-bottom: 10px solid #aaaaaa;
+			}
+			.gm .state {
+				margin-top: 5px;
+				height: 30px;
+				color: #b9b9b9;
+				font-size: 20px;
+				line-height: 30px;
+				order: 1;
+			}
+			.gm .state .s {
+				color: #ffffff;
+			}
+			.gm .pl {
+				height: 60px;
+				color: #b9b9b9;
+				font-size: 20px;
+				line-height: 30px;
+				order: 2;
+			}
+			.gm .pl .pwr {
+				display: flex;
+				flex-wrap: nowrap;
+			}
+			.gm .pl .pwr .p {
+				font-size: 17px;
+				width: 80px;
+				text-align: center;
+			}
+			.gm .cl {
+				height: 60px;
+				color: #b9b9b9;
+				font-size: 20px;
+				line-height: 30px;
+				order: 3;
+			}
+			.gm .cl .cwr {
+				display: flex;
+				flex-wrap: nowrap;
+			}
+			.gm .cl .cwr .c {
+				font-size: 17px;
+				width: 80px;
+				text-align: center;
+			}
+			.gm .st {
+				height: 60px;
+				color: #b9b9b9;
+				font-size: 20px;
+				line-height: 30px;
+				order: 3;
+			}
+			.gm .st .swr {
+				display: flex;
+				flex-wrap: nowrap;
+			}
+			.gm .st .swr .s {
+				font-size: 17px;
+				width: 80px;
+				text-align: center;
+			}
+		</style>
+	</head>
+	<body>
+		<div class="wr">
+		</div>
+	</body>
+</html>
