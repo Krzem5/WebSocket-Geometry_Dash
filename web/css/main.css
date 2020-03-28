@@ -1,0 +1,36 @@
+@import url("https://fonts.googleapis.com/css?family=Sniglet&display=swap");
+
+
+
+html {
+	position: fixed;
+}
+body {
+	position: fixed;
+	width: 100%;
+	height: 100%;
+}
+body, body * {
+	margin: 0;
+	padding: 0;
+}
+
+
+
+div.wr {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+}
+div.wr canvas.cnv {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+}
+div.wr canvas.cnv.h {
+	cursor: none;
+}
