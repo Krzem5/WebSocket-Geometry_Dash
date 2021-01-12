@@ -1,3 +1,3 @@
 @echo off
 cls
-python WSServer.py
+python src/WSServer.py

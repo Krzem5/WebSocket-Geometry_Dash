@@ -1,2 +1,3 @@
 @echo off
-python startup.py
+cls
+python src/startup.py
