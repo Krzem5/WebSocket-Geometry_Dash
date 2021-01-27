@@ -1,4 +1,5 @@
 build
-creds.json
-token.tk
-ngrok.exe
+src/startup.py
+*.json
+*.tk
+*.exe
