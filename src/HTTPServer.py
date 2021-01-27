@@ -1,7 +1,6 @@
 from http import HTTPStatus
 from http.server import SimpleHTTPRequestHandler, HTTPServer
 import io
-import ntpath
 import os
 import sys
 import threading
@@ -35,7 +34,7 @@ class Client(SimpleHTTPRequestHandler):
 			self.copyfile(f,self.wfile)
 			return
 		path=os.getcwd()+"\\web"+path.replace(os.getcwd(),"")
-		if (ntpath.isdir(path)):
+		if (os.path.isdir(path)):
 			parts=urllib.parse.urlsplit(self.path)
 			if not parts.path.endswith("/"):
 				self.send_response(HTTPStatus.MOVED_PERMANENTLY)
@@ -45,8 +44,8 @@ class Client(SimpleHTTPRequestHandler):
 				self.end_headers()
 				return None
 			for index in "index.html","index.htm":
-				index=ntpath.join(path,index)
-				if (ntpath.exists(index)):
+				index=os.path.join(path,index)
+				if (os.path.exists(index)):
 					path=index
 					break
 			else:

@@ -3,7 +3,6 @@ from google.auth.transport.requests import Request
 from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build
 import base64
-import ntpath
 import os
 import pickle
 import requests
@@ -19,7 +18,7 @@ SCOPES=["https://mail.google.com/"]
 
 def setup():
 	cdata=None
-	if (ntpath.exists("token.tk")):
+	if (os.path.exists("token.tk")):
 		with open("token.tk","rb") as t:
 			cdata=pickle.load(t)
 	if (not cdata or not cdata.valid):
